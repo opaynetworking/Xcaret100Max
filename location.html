@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change Location - Xcaret100</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            min-height: 100vh;
+            background: #000000;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .header .back-arrow {
+            font-size: 22px;
+            cursor: pointer;
+            margin-right: 16px;
+            text-decoration: none;
+            color: #ffffff;
+            transition: opacity 0.2s;
+        }
+
+        .header .back-arrow:hover {
+            opacity: 0.7;
+        }
+
+        .header .title {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .content {
+            padding: 30px 24px 40px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: #888888;
+            text-align: center;
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+
+        .current-location {
+            background: #111111;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 28px;
+            text-align: center;
+            transition: border-color 0.3s ease;
+        }
+
+        .current-location:hover {
+            border-color: #d4456a;
+        }
+
+        .current-location-label {
+            font-size: 12px;
+            color: #888888;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        .current-location-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .location-icon {
+            font-size: 20px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #d4456a;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .custom-select-wrapper {
+            position: relative;
+        }
+
+        .custom-select {
+            width: 100%;
+            padding: 16px;
+            background: #111111;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 16px;
+            font-family: inherit;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            transition: all 0.3s ease;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23888888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 18px;
+        }
+
+        .custom-select:focus {
+            outline: none;
+            border-color: #d4456a;
+            box-shadow: 0 0 0 3px rgba(212, 69, 106, 0.1);
+        }
+
+        .custom-select option {
+            background: #111111;
+            color: #ffffff;
+            padding: 12px;
+        }
+
+        .custom-location {
+            background: #111111;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 28px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .input-group {
+            flex: 1;
+        }
+
+        .input-label {
+            font-size: 12px;
+            color: #888888;
+            margin-bottom: 8px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px;
+            background: #0a0a0a;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #d4456a;
+            box-shadow: 0 0 0 3px rgba(212, 69, 106, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: #555555;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: #d4456a;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: #e0557a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(212, 69, 106, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            color: #cccccc;
+        }
+
+        .btn-secondary:hover {
+            background: #252525;
+            border-color: #3a3a3a;
+            box-shadow: none;
+        }
+
+        .gps-btn {
+            background: #1e3a5f;
+            border: 1px solid #2a4a6f;
+            margin-top: 8px;
+        }
+
+        .gps-btn:hover {
+            background: #254a75;
+            box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3);
+        }
+
+        .status-message {
+            text-align: center;
+            padding: 14px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-message.success {
+            background: rgba(27, 94, 32, 0.2);
+            border: 1px solid #2e7d32;
+            color: #81c784;
+            display: block;
+        }
+
+        .status-message.error {
+            background: rgba(183, 28, 28, 0.2);
+            border: 1px solid #c62828;
+            color: #ef5350;
+            display: block;
+        }
+
+        .divider {
+            height: 1px;
+            background: #2a2a2a;
+            margin: 8px 0 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="#" class="back-arrow" onclick="window.history.back(); return false;">&#8592;</a>
+            <span class="title">Change Location</span>
+        </div>
+
+        <div class="content">
+            <h1 class="page-title">Select Location 🌍</h1>
+            <p class="page-subtitle">Choose your preferred country or enter custom coordinates</p>
+
+            <div id="statusMessage" class="status-message"></div>
+
+            <div class="current-location">
+                <div class="current-location-label">Active Location</div>
+                <div class="current-location-value">
+                    <span class="location-icon">📍</span>
+                    <span id="currentLocationText">Detecting...</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="section-title">Country Selection</label>
+                <div class="custom-select-wrapper">
+                    <select id="countrySelect" class="custom-select" onchange="handleCountryChange()">
+                        <option value="" disabled selected>Choose a country...</option>
+                        <option value="US" data-lat="37.0902" data-lng="-95.7129">🇺🇸 United States</option>
+                        <option value="GB" data-lat="55.3781" data-lng="-3.4360">🇬🇧 United Kingdom</option>
+                        <option value="NG" data-lat="9.0820" data-lng="8.6753">🇳🇬 Nigeria</option>
+                        <option value="CA" data-lat="56.1304" data-lng="-106.3468">🇨🇦 Canada</option>
+                        <option value="AU" data-lat="-25.2744" data-lng="133.7751">🇦🇺 Australia</option>
+                        <option value="DE" data-lat="51.1657" data-lng="10.4515">🇩🇪 Germany</option>
+                        <option value="FR" data-lat="46.2276" data-lng="2.2137">🇫🇷 France</option>
+                        <option value="JP" data-lat="36.2048" data-lng="138.2529">🇯🇵 Japan</option>
+                        <option value="BR" data-lat="-14.2350" data-lng="-51.9253">🇧🇷 Brazil</option>
+                        <option value="IN" data-lat="20.5937" data-lng="78.9629">🇮🇳 India</option>
+                        <option value="ZA" data-lat="-30.5595" data-lng="22.9375">🇿🇦 South Africa</option>
+                        <option value="KE" data-lat="-0.0236" data-lng="37.9062">🇰🇪 Kenya</option>
+                        <option value="CN" data-lat="35.8617" data-lng="104.1954">🇨🇳 China</option>
+                        <option value="MX" data-lat="23.6345" data-lng="-102.5528">🇲🇽 Mexico</option>
+                        <option value="IT" data-lat="41.8719" data-lng="12.5674">🇮🇹 Italy</option>
+                        <option value="ES" data-lat="40.4637" data-lng="-3.7492">🇪🇸 Spain</option>
+                        <option value="RU" data-lat="61.5240" data-lng="105.3188">🇷🇺 Russia</option>
+                        <option value="KR" data-lat="35.9078" data-lng="127.7669">🇰🇷 South Korea</option>
+                        <option value="AE" data-lat="23.4241" data-lng="53.8478">🇦🇪 United Arab Emirates</option>
+                        <option value="SA" data-lat="23.8859" data-lng="45.0792">🇸🇦 Saudi Arabia</option>
+                        <option value="AR" data-lat="-38.4161" data-lng="-63.6167">🇦🇷 Argentina</option>
+                        <option value="CO" data-lat="4.5709" data-lng="-74.2973">🇨🇴 Colombia</option>
+                        <option value="CL" data-lat="-35.6751" data-lng="-71.5430">🇨🇱 Chile</option>
+                        <option value="PE" data-lat="-9.1900" data-lng="-75.0152">🇵🇪 Peru</option>
+                        <option value="EG" data-lat="26.8206" data-lng="30.8025">🇪🇬 Egypt</option>
+                        <option value="GH" data-lat="7.9465" data-lng="-1.0232">🇬🇭 Ghana</option>
+                        <option value="TZ" data-lat="-6.3690" data-lng="34.8888">🇹🇿 Tanzania</option>
+                        <option value="UG" data-lat="1.3733" data-lng="32.2903">🇺🇬 Uganda</option>
+                        <option value="ET" data-lat="9.1450" data-lng="40.4897">🇪🇹 Ethiopia</option>
+                        <option value="MA" data-lat="31.7917" data-lng="-7.0926">🇲🇦 Morocco</option>
+                        <option value="TR" data-lat="38.9637" data-lng="35.2433">🇹🇷 Turkey</option>
+                        <option value="ID" data-lat="-0.7893" data-lng="113.9213">🇮🇩 Indonesia</option>
+                        <option value="MY" data-lat="4.2105" data-lng="101.9758">🇲🇾 Malaysia</option>
+                        <option value="TH" data-lat="15.8700" data-lng="100.9925">🇹🇭 Thailand</option>
+                        <option value="VN" data-lat="14.0583" data-lng="108.2772">🇻🇳 Vietnam</option>
+                        <option value="PH" data-lat="12.8797" data-lng="121.7740">🇵🇭 Philippines</option>
+                        <option value="SG" data-lat="1.3521" data-lng="103.8198">🇸🇬 Singapore</option>
+                        <option value="NZ" data-lat="-40.9006" data-lng="174.8860">🇳🇿 New Zealand</option>
+                        <option value="SE" data-lat="60.1282" data-lng="18.6435">🇸🇪 Sweden</option>
+                        <option value="NO" data-lat="60.4720" data-lng="8.4689">🇳🇴 Norway</option>
+                        <option value="DK" data-lat="56.2639" data-lng="9.5018">🇩🇰 Denmark</option>
+                        <option value="FI" data-lat="61.9241" data-lng="25.7482">🇫🇮 Finland</option>
+                        <option value="NL" data-lat="52.1326" data-lng="5.2913">🇳🇱 Netherlands</option>
+                        <option value="BE" data-lat="50.5039" data-lng="4.4699">🇧🇪 Belgium</option>
+                        <option value="CH" data-lat="46.8182" data-lng="8.2275">🇨🇭 Switzerland</option>
+                        <option value="AT" data-lat="47.5162" data-lng="14.5501">🇦🇹 Austria</option>
+                        <option value="PL" data-lat="51.9194" data-lng="19.1451">🇵🇱 Poland</option>
+                        <option value="CZ" data-lat="49.8175" data-lng="15.4730">🇨🇿 Czech Republic</option>
+                        <option value="PT" data-lat="39.3999" data-lng="-8.2245">🇵🇹 Portugal</option>
+                        <option value="GR" data-lat="39.0742" data-lng="21.8243">🇬🇷 Greece</option>
+                        <option value="IE" data-lat="53.4129" data-lng="-8.2439">🇮🇪 Ireland</option>
+                        <option value="IL" data-lat="31.0461" data-lng="34.8516">🇮🇱 Israel</option>
+                        <option value="PK" data-lat="30.3753" data-lng="69.3451">🇵🇰 Pakistan</option>
+                        <option value="BD" data-lat="23.6850" data-lng="90.3563">🇧🇩 Bangladesh</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="form-group">
+                <label class="section-title">Custom Coordinates (Optional)</label>
+                <div class="custom-location">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Latitude</label>
+                            <input type="number" class="input-field" id="latitude" placeholder="0.000000" step="any">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Longitude</label>
+                            <input type="number" class="input-field" id="longitude" placeholder="0.000000" step="any">
+                        </div>
+                    </div>
+                    <button class="btn gps-btn" onclick="getGPSLocation()">
+                        <span>📡</span>
+                        <span>Use My GPS Location</span>
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn" onclick="proceedToNext()">
+                <span>Proceed</span>
+                <span>→</span>
+            </button>
+            
+            <button class="btn btn-secondary" onclick="resetLocation()">
+                Reset to Default
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize with current location
+        window.onload = function() {
+            getCurrentLocation();
+        };
+
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        document.getElementById('currentLocationText').textContent = 
+                            `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
+                        
+                        // Pre-fill custom inputs
+                        document.getElementById('latitude').value = lat.toFixed(6);
+                        document.getElementById('longitude').value = lng.toFixed(6);
+                    },
+                    function(error) {
+                        document.getElementById('currentLocationText').textContent = 
+                            'Location access denied';
+                    }
+                );
+            } else {
+                document.getElementById('currentLocationText').textContent = 
+                    'Geolocation not supported';
+            }
+        }
+
+        function handleCountryChange() {
+            const select = document.getElementById('countrySelect');
+            const selectedOption = select.options[select.selectedIndex];
+            
+            if (selectedOption.value) {
+                const lat = selectedOption.getAttribute('data-lat');
+                const lng = selectedOption.getAttribute('data-lng');
+                const countryName = selectedOption.text;
+                
+                // Update display
+                document.getElementById('currentLocationText').textContent = countryName;
+                
+                // Update custom inputs
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lng;
+                
+                showStatus(`Location updated to ${countryName}`, 'success');
+            }
+        }
+
+        function getGPSLocation() {
+            if (navigator.geolocation) {
+                showStatus('Acquiring GPS location...', 'success');
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        document.getElementById('latitude').value = lat.toFixed(6);
+                        document.getElementById('longitude').value = lng.toFixed(6);
+                        document.getElementById('currentLocationText').textContent = 
+                            `${lat.toFixed(4)}°, ${lng.toFixed(4)}°`;
+                        
+                        // Reset dropdown to placeholder since it's a custom GPS location
+                        document.getElementById('countrySelect').selectedIndex = 0;
+                        
+                        showStatus('GPS location acquired successfully!', 'success');
+                    },
+                    function(error) {
+                        showStatus('Failed to get GPS location. Please enable location services.', 'error');
+                    }
+                );
+            } else {
+                showStatus('Geolocation is not supported by your browser.', 'error');
+            }
+        }
+
+        function proceedToNext() {
+            const lat = document.getElementById('latitude').value;
+            const lng = document.getElementById('longitude').value;
+            
+            if (lat && lng) {
+                // Save to localStorage before proceeding
+                localStorage.setItem('xcaret100_latitude', lat);
+                localStorage.setItem('xcaret100_longitude', lng);
+                localStorage.setItem('xcaret100_location_timestamp', new Date().toISOString());
+                
+                showStatus('Location saved! Redirecting...', 'success');
+                
+                // Redirect to home.html after a brief delay
+                setTimeout(() => {
+                    window.location.href = 'menu.html';
+                }, 800);
+            } else {
+                showStatus('Please select a country or enter coordinates first.', 'error');
+            }
+        }
+
+        function resetLocation() {
+            localStorage.removeItem('xcaret100_latitude');
+            localStorage.removeItem('xcaret100_longitude');
+            localStorage.removeItem('xcaret100_location_timestamp');
+            
+            // Reset UI
+            document.getElementById('countrySelect').selectedIndex = 0;
+            document.getElementById('latitude').value = '';
+            document.getElementById('longitude').value = '';
+            
+            getCurrentLocation();
+            showStatus('Location reset to default.', 'success');
+        }
+
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = 'status-message ' + type;
+            
+            setTimeout(() => {
+                statusEl.className = 'status-message';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
