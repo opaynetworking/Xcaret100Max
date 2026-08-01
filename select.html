@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Card Location</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .illustration {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 40px;
+        }
+
+        .illustration img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1a5e6e;
+            text-align: center;
+            line-height: 1.4;
+            margin-bottom: 50px;
+            letter-spacing: 1px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .btn {
+            padding: 16px 24px;
+            background: #42a5f5;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #2196f3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.15);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="illustration">
+        <img src="https://iili.io/CeJuWx9.png" alt="Money Transfer Illustration">
+    </div>
+
+    <div class="title">
+        Select Credit/Debit<br>Card Location
+    </div>
+
+    <div class="buttons">
+        <button class="btn" onclick="navigateToCardPage('international')">
+            INTERNATIONAL BANK
+        </button>
+        <button class="btn" onclick="navigateToCardPage('local')">
+            LOCAL BANK
+        </button>
+    </div>
+
+    <script>
+        function navigateToCardPage(type) {
+            // Save the selected bank type to localStorage
+            localStorage.setItem('selectedBankType', type);
+            
+            // Navigate to card.html
+            window.location.href = 'card.html';
+        }
+    </script>
+</body>
+</html>
+
