@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Receive Method</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+        }
+
+        .page-title {
+            font-size: 36px;
+            font-weight: bold;
+            color: #00bcd4;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+            letter-spacing: 0.5px;
+        }
+
+        .option-card {
+            border: 5px solid #000000;
+            border-radius: 45px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .option-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Selected state styling */
+        .option-card.selected {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            border-color: #00bcd4;
+            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.3), 0 6px 16px rgba(0,0,0,0.2);
+            transform: scale(1.02);
+        }
+
+        .option-card.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #00bcd4;
+            background: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            border: 2px solid #00bcd4;
+        }
+
+        .option-icon {
+            flex-shrink: 0;
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bank-icon {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+            border: 3px solid #2c2c2c;
+            border-radius: 12px;
+            padding: 10px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.3);
+            transform: perspective(500px) rotateY(-10deg);
+        }
+
+        .bank-icon-content {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .bank-icon .red-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .bank-icon .bar {
+            width: 14px;
+            height: 5px;
+            background: #d32f2f;
+            border-radius: 1px;
+        }
+
+        .bank-icon-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bank-icon .bank-word {
+            font-size: 22px;
+            font-weight: bold;
+            color: #1976d2;
+            line-height: 1;
+            letter-spacing: -0.5px;
+        }
+
+        .bank-icon .transfer-word {
+            font-size: 15px;
+            font-weight: bold;
+            color: #00bcd4;
+            line-height: 1;
+            letter-spacing: 0px;
+        }
+
+        .bitcoin-icon-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .wallet-illustration {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+            border: 2.5px solid #2c2c2c;
+            border-radius: 8px;
+            padding: 12px;
+            position: relative;
+            width: 100%;
+            height: 85%;
+            box-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+        }
+
+        .wallet-illustration::before {
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 22px;
+            height: 22px;
+            border: 2px solid #2c2c2c;
+            border-radius: 50%;
+            background: #ffd700;
+        }
+
+        .wallet-label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #2c2c2c;
+            text-align: left;
+            margin-top: 8px;
+        }
+
+        .bitcoin-coin {
+            position: absolute;
+            top: -5px;
+            left: 8px;
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            border: 3px solid #b8860b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            font-weight: bold;
+            color: #b8860b;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+            z-index: 10;
+        }
+
+        .paypal-icon-container {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
+            border: 2px solid #c0c0c0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .paypal-icon-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 0 0 70px 70px;
+            border-color: transparent transparent #1a3a6c transparent;
+        }
+
+        .paypal-logo-text {
+            font-size: 26px;
+            font-weight: bold;
+            z-index: 1;
+            font-family: Arial, sans-serif;
+            letter-spacing: -1px;
+        }
+
+        .paypal-p {
+            color: #009ee3;
+        }
+
+        .paypal-aypal {
+            color: #003087;
+        }
+
+        .option-content {
+            flex: 1;
+        }
+
+        .option-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 10px;
+            text-decoration: underline;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .option-description {
+            font-size: 19px;
+            color: #1976d2;
+            line-height: 1.4;
+            font-family: 'Times New Roman', Georgia, serif;
+        }
+
+        .continue-btn {
+            display: block;
+            width: 100%;
+            max-width: 280px;
+            margin: 30px auto 20px auto;
+            padding: 16px 30px;
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .continue-btn:hover {
+            background: #1976d2;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0,0,0,0.3);
+        }
+
+        .continue-btn:disabled {
+            background: #b0bec5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .selection-message {
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+            margin-top: -15px;
+            margin-bottom: 20px;
+            min-height: 20px;
+        }
+
+        .selection-message.active {
+            color: #00bcd4;
+            font-weight: bold;
+        }
+
+        /* Loading Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            padding: 40px 20px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(33, 150, 243, 0.2);
+            border-left-color: #2196f3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .modal-description {
+            font-size: 16px;
+            color: #666;
+        }
+
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 28px;
+            }
+
+            .option-card {
+                padding: 15px;
+            }
+
+            .option-icon {
+                width: 80px;
+                height: 80px;
+            }
+
+            .option-title {
+                font-size: 20px;
+            }
+
+            .option-description {
+                font-size: 16px;
+            }
+
+            .bank-icon .bank-word {
+                font-size: 18px;
+            }
+
+            .bank-icon .transfer-word {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">Select Receive Method</h1>
+
+        <div class="option-card" data-method="bank">
+            <div class="option-icon">
+                <div class="bank-icon">
+                    <div class="bank-icon-content">
+                        <div class="red-bars">
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                            <div class="bar"></div>
+                        </div>
+                        <div class="bank-icon-text">
+                            <div class="bank-word">BANK</div>
+                            <div class="transfer-word">TRANSFER</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="option-content">
+                <div class="option-title">BANK TRANSFER</div>
+                <div class="option-description">
+                    Your Can Transfer Money directly to Your Local Bank account On your Currency
+                </div>
+            </div>
+        </div>
+
+        <div class="option-card" data-method="bitcoin">
+            <div class="option-icon">
+                <div class="bitcoin-icon-container">
+                    <div class="bitcoin-coin">₿</div>
+                    <div class="wallet-illustration">
+                        <div class="wallet-label">WALLET</div>
+                    </div>
+                </div>
+            </div>
+            <div class="option-content">
+                <div class="option-title">BITCOINS WALLET</div>
+                <div class="option-description">
+                    You Can Receive Money To Bitcoin Wallet Directly with creating an account
+                </div>
+            </div>
+        </div>
+
+        <div class="option-card" data-method="paypal">
+            <div class="option-icon">
+                <div class="paypal-icon-container">
+                    <div class="paypal-logo-text">
+                        <span class="paypal-p">P</span><span class="paypal-aypal">ayPal</span>
+                    </div>
+                </div>
+            </div>
+            <div class="option-content">
+                <div class="option-title">PAYPAL ACCOUNT</div>
+                <div class="option-description">
+                    You can Receive Money on PayPal Wallet through your PayPal Email Address
+                </div>
+            </div>
+        </div>
+
+        <div class="selection-message" id="selectionMessage">Please select a receive method</div>
+
+        <button class="continue-btn" id="continueBtn" disabled>CONTINUE</button>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal-overlay" id="loadingModal">
+        <div class="modal-content">
+            <div class="spinner"></div>
+            <h3 class="modal-title">Processing Transaction</h3>
+            <p class="modal-description">Please do not close this window.</p>
+        </div>
+    </div>
+
+    <script>
+        const optionCards = document.querySelectorAll('.option-card');
+        const continueBtn = document.getElementById('continueBtn');
+        const selectionMessage = document.getElementById('selectionMessage');
+        const loadingModal = document.getElementById('loadingModal');
+        let selectedMethod = null;
+
+        // Handle option card selection
+        optionCards.forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove selected class from all cards
+                optionCards.forEach(c => c.classList.remove('selected'));
+                
+                // Add selected class to clicked card
+                this.classList.add('selected');
+                
+                // Store selected method
+                selectedMethod = this.getAttribute('data-method');
+                
+                // Enable continue button
+                continueBtn.disabled = false;
+                
+                // Update message
+                const methodNames = {
+                    'bank': 'Bank Transfer',
+                    'bitcoin': 'Bitcoins Wallet',
+                    'paypal': 'PayPal Account'
+                };
+                
+                selectionMessage.textContent = `✓ ${methodNames[selectedMethod]} selected`;
+                selectionMessage.classList.add('active');
+            });
+        });
+
+        // Handle continue button click
+        continueBtn.addEventListener('click', function() {
+            if (selectedMethod) {
+                // Show loading modal
+                loadingModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                
+                // Redirect to act.html after 4 seconds
+                setTimeout(function() {
+                    window.location.href = 'act.html';
+                }, 4000);
+            }
+        });
+    </script>
+</body>
+</html>
