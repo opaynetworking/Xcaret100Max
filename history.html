@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Inboxes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            background: #000000;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .header {
+            background-color: #000000;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 400;
+            color: #ffffff;
+        }
+
+        .cancel-btn {
+            background-color: #4a90e2;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background-color 0.3s;
+        }
+
+        .cancel-btn:hover {
+            background-color: #357abd;
+        }
+
+        .search-container {
+            padding: 0 16px 16px 16px;
+        }
+
+        .search-bar {
+            width: 100%;
+            background-color: #657786;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 16px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-bar input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 16px;
+            width: 100%;
+            font-family: inherit;
+        }
+
+        .search-bar input::placeholder {
+            color: #8899a6;
+        }
+
+        .search-icon {
+            color: #8899a6;
+            font-size: 18px;
+        }
+
+        .content-area {
+            background-color: #333333;
+            margin: 16px;
+            border-radius: 8px;
+            min-height: calc(100vh - 200px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .empty-text {
+            font-size: 32px;
+            font-weight: 400;
+            color: #ffffff;
+            text-align: center;
+        }
+
+        /* Round Loader Styles */
+        .loader {
+            border: 4px solid #333333;
+            border-top: 4px solid #4a90e2;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 56px;
+            height: 56px;
+            background-color: #4a90e2;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .fab:hover {
+            background-color: #357abd;
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(74, 144, 226, 0.5);
+        }
+
+        .fab:active {
+            transform: scale(0.95);
+        }
+
+        .fab-icon {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 300;
+            line-height: 1;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #1a1a1a;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 90%;
+            width: 400px;
+            text-align: center;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .modal-content p {
+            color: #8899a6;
+            margin-bottom: 20px;
+            white-space: pre-line;
+        }
+
+        .modal-btn {
+            background-color: #4a90e2;
+            color: #ffffff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+            }
+            
+            .header-title {
+                font-size: 24px;
+            }
+            
+            .fab {
+                bottom: 20px;
+                right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="header-title">All Inboxes</h1>
+            <button class="cancel-btn" onclick="handleCancel()">CANCEL</button>
+        </div>
+
+        <div class="search-container">
+            <div class="search-bar">
+                <span class="search-icon">&#128269;</span>
+                <input type="text" id="searchInput" placeholder="Search" onkeyup="handleSearch()">
+            </div>
+        </div>
+
+        <div class="content-area" id="contentArea">
+            <div class="loader" id="loader"></div>
+            <div class="empty-text" id="emptyText">Empty</div>
+            <div id="resultsList" style="display: none; width: 100%; padding: 20px;"></div>
+        </div>
+
+        <!-- Changed from compose (+) to back navigation button -->
+        <button class="fab" onclick="handleBack()" title="Go Back">
+            <span class="fab-icon">&#8592;</span>
+        </button>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Notification</h2>
+            <p id="modalMessage">Message content</p>
+            <button class="modal-btn" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // Sample inbox data
+        const inboxData = [
+            { id: 1, from: 'John Doe', subject: 'Meeting Tomorrow', preview: 'Hi, just confirming our meeting...' },
+            { id: 2, from: 'Sarah Smith', subject: 'Project Update', preview: 'The project is progressing well...' },
+            { id: 3, from: 'Mike Johnson', subject: 'Invoice #1234', preview: 'Please find attached the invoice...' },
+            { id: 4, from: 'Emily Brown', subject: 'Welcome!', preview: 'Thank you for joining our platform...' },
+            { id: 5, from: 'Support Team', subject: 'Ticket #5678', preview: 'Your support ticket has been...' }
+        ];
+
+        let currentInboxes = [];
+        let searchTimeout = null;
+
+        // Handle Cancel button
+        function handleCancel() {
+            showModal('Cancel Action', 'You have cancelled the operation.');
+        }
+
+        // Handle Back Navigation
+        function handleBack() {
+            window.history.back();
+        }
+
+        // Handle Search functionality with loader
+        function handleSearch() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const emptyText = document.getElementById('emptyText');
+            const resultsList = document.getElementById('resultsList');
+            const loader = document.getElementById('loader');
+            
+            // Clear any existing timeout to prevent overlapping searches
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+
+            if (searchTerm.trim() === '') {
+                loader.style.display = 'none';
+                resultsList.style.display = 'none';
+                emptyText.textContent = 'Empty';
+                emptyText.style.display = 'block';
+                currentInboxes = [];
+                return;
+            }
+
+            // Show loader, hide other content
+            emptyText.style.display = 'none';
+            resultsList.style.display = 'none';
+            loader.style.display = 'block';
+
+            // Simulate network delay (1 second)
+            searchTimeout = setTimeout(() => {
+                // Filter inboxes based on search
+                currentInboxes = inboxData.filter(item => 
+                    item.from.toLowerCase().includes(searchTerm) ||
+                    item.subject.toLowerCase().includes(searchTerm) ||
+                    item.preview.toLowerCase().includes(searchTerm)
+                );
+
+                // Hide loader after delay
+                loader.style.display = 'none';
+
+                if (currentInboxes.length === 0) {
+                    emptyText.textContent = 'No transaction';
+                    emptyText.style.display = 'block';
+                } else {
+                    resultsList.style.display = 'block';
+                    resultsList.innerHTML = currentInboxes.map(item => `
+                        <div style="background: #2a2a2a; padding: 15px; margin-bottom: 10px; border-radius: 6px; cursor: pointer;" onclick="showMessage(${item.id})">
+                            <div style="font-weight: 600; color: #fff; margin-bottom: 5px;">${item.from}</div>
+                            <div style="color: #4a90e2; font-size: 14px; margin-bottom: 5px;">${item.subject}</div>
+                            <div style="color: #8899a6; font-size: 13px;">${item.preview}</div>
+                        </div>
+                    `).join('');
+                }
+            }, 1000);
+        }
+
+        // Show individual message
+        function showMessage(id) {
+            const message = inboxData.find(item => item.id === id);
+            if (message) {
+                showModal(message.subject, `From: ${message.from}\n\n${message.preview}`);
+            }
+        }
+
+        // Show Modal
+        function showModal(title, message) {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        // Close Modal
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Add some sample functionality - show notification on load
+        window.onload = function() {
+            console.log('All Inboxes loaded');
+            console.log('Total messages:', inboxData.length);
+        };
+    </script>
+</body>
+</html>
