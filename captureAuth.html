@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Biometric Face Authentication</title>
+    <style>
+        /* ================= BASE RESET & STATIC BACKGROUND ================= */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif; }
+        body, html { height: 100vh; width: 100vw; overflow: hidden; position: relative; margin: 0; }
+        body {
+            background: #030b14 url('https://iili.io/CgZKjPS.jpg') no-repeat center center fixed;
+            background-size: cover; color: #ffffff;
+        }
+
+        /* ================= MATRIX LOADING OVERLAY ================= */
+        #matrixCanvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; pointer-events: none; 
+        }
+
+        /* ================= PROFESSIONAL TOP HEADER ================= */
+        .header {
+            position: absolute; top: 0; left: 0; width: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #ffffff;
+            padding: 15px 20px; display: flex; align-items: center; gap: 15px;
+            height: 65px; z-index: 10;
+        }
+        .header .back-arrow { font-size: 22px; cursor: pointer; opacity: 0.8; transition: 0.2s; }
+        .header .app-title { font-size: 20px; font-weight: 600; letter-spacing: 0.5px; }
+
+        /* ================= ANDROID LOGO ================= */
+        .android-logo {
+            position: absolute; top: 52%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 2; width: 70px; height: 70px; pointer-events: none;
+            filter: drop-shadow(0 0 20px rgba(0, 200, 255, 0.2));
+        }
+
+        /* ================= PROFESSIONAL UI CONTENT LAYER ================= */
+        .content-layer {
+            position: relative; z-index: 5; display: flex; flex-direction: column; align-items: center;
+            width: 100%; height: 100%; padding-top: 130px; padding-bottom: 40px;
+        }
+        .title-text {
+            font-size: 34px; font-weight: 800; color: #ff1744; text-align: center; line-height: 1.2;
+            text-shadow: 0px 0px 15px rgba(255, 23, 68, 0.6), 0px 2px 4px rgba(0,0,0,0.9);
+            margin-bottom: 20px; letter-spacing: 1px;
+        }
+        .capture-btn {
+            background: linear-gradient(135deg, #00b0ff 0%, #007bb5 100%); color: #ffffff; border: none;
+            font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            padding: 16px 50px; margin-top: 100px; border-radius: 50px; cursor: pointer; 
+            box-shadow: 0 8px 25px rgba(0, 144, 234, 0.5);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .capture-btn:active { transform: scale(0.94); box-shadow: 0 4px 10px rgba(0, 144, 234, 0.4); }
+
+        /* ================= PROFESSIONAL CAMERA UI ================= */
+        #camera-container {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(4px); z-index: 999;
+            display: none; flex-direction: column; align-items: center; justify-content: center; 
+        }
+        #videoFeed, #previewImg {
+            width: 90%; max-width: 400px; 
+            border: 2px solid #00b0ff; border-radius: 20px; 
+            box-shadow: 0 0 30px rgba(0, 176, 255, 0.3); background: #000;
+            object-fit: cover; aspect-ratio: 3/4;
+        }
+        #previewImg { display: none; position: absolute; z-index: 5; }
+        canvas#snapshotCanvas { display: none; }
+
+        /* Camera UI Controls */
+        #camera-controls {
+            position: absolute; bottom: 80px; width: 100%; display: flex; justify-content: center;
+            align-items: center; z-index: 9999;
+        }
+
+        /* Red Round Capture Button - Shows immediately when camera opens */
+        .shutter-btn {
+            width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,1);
+            border: 5px solid rgba(255,255,255,0.6); cursor: pointer;
+            display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.8); transition: 0.2s;
+        }
+        .shutter-inner {
+            width: 60px; height: 60px; border-radius: 50%; background: #ff1744;
+            transition: 0.2s; box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .shutter-btn:active .shutter-inner { transform: scale(0.9); background: #d50000; }
+
+        /* Save & Cancel Buttons */
+        #save-cancel-controls { display: none; gap: 20px; align-items: center; }
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(8px); color: #fff;
+            border: 1px solid rgba(255,255,255,0.3); padding: 12px 30px; border-radius: 50px;
+            font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.2s;
+        }
+        .btn-cancel:active { transform: scale(0.95); background: rgba(255, 255, 255, 0.25); }
+        .btn-save {
+            background: linear-gradient(135deg, #00e676, #00c853); color: #fff; border: none;
+            padding: 12px 40px; border-radius: 50px; font-weight: 700; font-size: 16px; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 230, 118, 0.4); transition: 0.2s;
+        }
+        .btn-save:active { transform: scale(0.95); }
+
+        /* ================= BOTTOM ROW ================= */
+        .bottom-row {
+            position: absolute; bottom: 120px; width: 100%; display: flex; justify-content: center; gap: 12px;
+            padding: 0 15px; z-index: 5;
+        }
+        .bottom-row button {
+            flex: 1; max-width: 170px; padding: 14px 5px; border: none; 
+            font-weight: 700; font-size: 14px; border-radius: 12px;
+            cursor: pointer; text-align: center; line-height: 1.3;
+            transition: all 0.3s ease;
+        }
+        .btn-upload {
+            background: linear-gradient(135deg, #66bb6a 0%, #388e3c 100%); color: #ffffff;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .btn-upload .status { font-size: 11px; opacity: 0.7; font-weight: 400; margin-top: 2px; transition: 0.3s; }
+        .btn-upload .status.ready { opacity: 1; color: #a5d6a7; font-weight: 600; }
+        .btn-upload:active { transform: scale(0.95); }
+
+        .btn-auth-code {
+            background: linear-gradient(135deg, #ffee58 0%, #f9a825 100%); color: #1a1a1a;
+            box-shadow: 0 4px 15px rgba(255, 202, 0, 0.4);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .btn-auth-code span { font-size: 12px; opacity: 0.9; font-weight: 400; }
+        .btn-auth-code:active { transform: scale(0.95); }
+
+        /* ================= FLOATING FAB ================= */
+        .fab-container {
+            position: absolute; bottom: 30px; right: 20px; z-index: 5; width: 65px; height: 65px;
+            background: radial-gradient(circle at 30% 30%, #1fb6ff, #0080c9); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 25px rgba(16, 156, 219, 0.6); border: 2px solid rgba(255,255,255,0.2); cursor: pointer;
+            animation: fabPulse 3s infinite;
+        }
+        @keyframes fabPulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 156, 219, 0.6); }
+            70% { box-shadow: 0 0 0 15px rgba(16, 156, 219, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 156, 219, 0); }
+        }
+        .fab-inner { width: 40px; height: 40px; background-color: #d50000; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #ffffff; box-shadow: inset 0 2px 5px rgba(0,0,0,0.3); }
+        .fab-inner svg { width: 22px; height: 22px; fill: #fff; }
+
+        /* ================= MODALS ================= */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(6px); z-index: 1000;
+            display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px;
+        }
+        .modal-box { background: #ffffff; border-radius: 24px; padding: 35px 30px; max-width: 360px; width: 100%; box-shadow: 0 25px 80px rgba(0,0,0,0.5); }
+        .loader-spinner { width: 60px; height: 60px; border: 6px solid rgba(255,255,255,0.2); border-top: 6px solid #ffffff; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loader-text { color: #ffffff; font-weight: 600; font-size: 18px; letter-spacing: 1px; }
+        .fail-icon { color: #ff1744; font-size: 55px; background: #ffebee; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; }
+        .fail-text { color: #1a1a1a; font-size: 22px; font-weight: 800; margin-bottom: 5px; }
+        .fail-subtext { color: #666; font-size: 14px; margin-bottom: 25px; }
+        .btn-retry { background: linear-gradient(135deg, #ff1744, #d50000); color: white; border: none; padding: 14px 30px; border-radius: 50px; font-weight: bold; cursor: pointer; width: 100%; box-shadow: 0 5px 15px rgba(255, 23, 68, 0.4); }
+        .btn-retry:active { transform: scale(0.96); }
+    </style>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+
+    <div class="header">
+        <span class="back-arrow">&#8592;</span>
+        <span class="app-title">Xcaret100</span>
+    </div>
+
+    <div class="android-logo">
+        <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+            <path d="M394.7 205.3h-25.6v-21.3c0-23.5-19.2-42.7-42.7-42.7H185.6c-23.5 0-42.7 19.2-42.7 42.7v21.3h-25.6c-8.5 0-12.8 4.3-12.8 12.8 0 8.5 4.3 12.8 12.8 12.8h12.8v128c0 23.5 19.2 42.7 42.7 42.7h12.8v85.3h42.7v-85.3h17.1v85.3h42.7v-85.3h12.8c23.5 0 42.7-19.2 42.7-42.7V231h12.8c8.5 0 12.8-4.3 12.8-12.8s-4.3-12.9-12.8-12.9zM185.6 141.2c-8.5 0-12.8-4.3-12.8-12.8s4.3-12.8 12.8-12.8 12.8 4.3 12.8 12.8-4.3 12.8-12.8 12.8zm140.8 0c-8.5 0-12.8-4.3-12.8-12.8s4.3-12.8 12.8-12.8 12.8 4.3 12.8 12.8-4.3 12.8-12.8 12.8z" fill="#d0d0d0"/>
+            <path d="M330.5 244.3c-3.2 7.7-9.6 12.8-17.1 12.8s-12.8-5.1-15-12.8c-3.2-7.7 3.2-17.1 10.7-17.1s17.1 9.4 21.4 17.1zM181.6 244.3c3.2 7.7 9.6 12.8 17.1 12.8s12.8-5.1 15-12.8c3.2-7.7-3.2-17.1-10.7-17.1s-17.1 9.4-21.4 17.1z" fill="#d0d0d0"/>
+        </svg>
+    </div>
+
+    <div class="content-layer">
+        <div class="title-text">Biometric Face<br>Authentication</div>
+        <button class="capture-btn" id="openCameraBtn">CAPTURE FACE</button>
+    </div>
+
+    <!-- Camera View (Hidden by default) -->
+    <div id="camera-container">
+        <!-- Added 'muted' and ensured 'playsinline' for mobile compatibility -->
+        <video id="videoFeed" autoplay playsinline muted></video>
+        <img id="previewImg">
+        <canvas id="snapshotCanvas" style="display:none;"></canvas>
+        
+        <div id="camera-controls">
+            <!-- The Red Capture Button -->
+            <button class="shutter-btn" id="captureBtn">
+                <span class="shutter-inner"></span>
+            </button>
+            
+            <!-- Save & Cancel (Appears after snapping) -->
+            <div id="save-cancel-controls">
+                <button class="btn-cancel" id="cancelBtn">Cancel</button>
+                <button class="btn-save" id="saveBtn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-row">
+        <button class="btn-upload" id="uploadBtn">
+            UPLOAD TO AUTHORIZE
+            <span class="status">Capture face to start</span>
+        </button>
+        <button class="btn-auth-code" onclick="window.location.href='enterAuth.html'">
+            OR USE AUTHORIZATION<br><span>CODE</span>
+        </button>
+    </div>
+
+    <!-- UPDATED: Added onclick to navigate to buyauthtoken.html -->
+    <div class="fab-container" onclick="window.location.href='buyauthtoken.html'">
+        <div class="fab-inner">
+            <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="loaderModal">
+        <div class="modal-box" style="background:transparent; box-shadow:none; padding:0; max-width:200px;">
+            <div class="loader-spinner"></div>
+            <div class="loader-text">Authorizing...</div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="failModal">
+        <div class="modal-box">
+            <div class="fail-icon">&#10007;</div>
+            <div class="fail-text">Failed to Authorize</div>
+            <div class="fail-subtext">Network connection timeout or face mismatch detected.</div>
+            <button class="btn-retry" id="retryBtn">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. MATRIX ANIMATION
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const fontSize = 16; const columns = canvas.width / fontSize; const drops = [];
+        for(let x = 0; x < columns; x++) drops[x] = 1;
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 11, 23, 0.05)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00ccff'; ctx.font = fontSize + 'px monospace';
+            for(let i = 0; i < drops.length; i++) {
+                const text = chars[Math.floor(Math.random() * chars.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 35);
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        });
+
+        // 2. CAMERA & SNAP WORKFLOW LOGIC
+        const videoFeed = document.getElementById('videoFeed');
+        const cameraContainer = document.getElementById('camera-container');
+        const openBtn = document.getElementById('openCameraBtn');
+        const captureBtn = document.getElementById('captureBtn'); // The Red Shutter
+        const saveBtn = document.getElementById('saveBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+        const previewImg = document.getElementById('previewImg');
+        const canvasSnapshot = document.getElementById('snapshotCanvas');
+
+        const loaderModal = document.getElementById('loaderModal');
+        const failModal = document.getElementById('failModal');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const retryBtn = document.getElementById('retryBtn');
+        const saveCancelControls = document.getElementById('save-cancel-controls');
+
+        let stream = null;
+        let isPhotoSaved = false;
+
+        function updateUploadStatus(ready) {
+            const statusSpan = uploadBtn.querySelector('.status');
+            if (ready) {
+                statusSpan.textContent = '✓ Ready to upload';
+                statusSpan.className = 'status ready';
+                isPhotoSaved = true;
+            } else {
+                statusSpan.textContent = 'Capture face to start';
+                statusSpan.className = 'status';
+                isPhotoSaved = false;
+            }
+        }
+
+        /* --- 1. OPEN CAMERA & SHOW RED CAPTURE BUTTON --- */
+        openBtn.addEventListener('click', async () => {
+            try {
+                // Request camera access
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+                videoFeed.srcObject = stream;
+                
+                // Ensure Video Feed is on top, hide any saved previews
+                videoFeed.style.display = 'block';
+                previewImg.style.display = 'none';
+                
+                // Render the Red Round Capture button, hide Save/Cancel
+                captureBtn.style.display = 'flex'; 
+                saveCancelControls.style.display = 'none';
+                
+                // Finally reveal the camera
+                cameraContainer.style.display = 'flex';
+            } catch (error) {
+                alert("Camera access denied: " + error.message + "\n\nNOTE: You must use HTTPS (secure connection) or localhost to use the camera on mobile devices.");
+            }
+        });
+
+        /* --- 2. SNAP PHOTO (Tap the Red Button) --- */
+        captureBtn.addEventListener('click', () => {
+            if (!stream) return;
+            
+            // Capture frame onto canvas
+            const track = stream.getVideoTracks()[0];
+            const settings = track.getSettings();
+            canvasSnapshot.width = settings.width || 640;
+            canvasSnapshot.height = settings.height || 480;
+            const ctxSnap = canvasSnapshot.getContext('2d');
+            ctxSnap.drawImage(videoFeed, 0, 0, canvasSnapshot.width, canvasSnapshot.height);
+            
+            // Show the instantly snapped picture as a preview
+            previewImg.src = canvasSnapshot.toDataURL('image/jpeg');
+            videoFeed.style.display = 'none';
+            previewImg.style.display = 'block';
+
+            // Swap the Red Button for the Save & Cancel options
+            captureBtn.style.display = 'none';
+            saveCancelControls.style.display = 'flex';
+        });
+
+        /* --- 3. CANCEL (Discard photo, close camera) --- */
+        cancelBtn.addEventListener('click', () => {
+            if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+            cameraContainer.style.display = 'none';
+            updateUploadStatus(false); 
+        });
+
+        /* --- 4. SAVE (Keep photo, close camera, enable upload) --- */
+        saveBtn.addEventListener('click', () => {
+            if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+            cameraContainer.style.display = 'none';
+            updateUploadStatus(true); // Updates bottom text to "✓ Ready to upload"
+        });
+
+        /* --- 5. UPLOAD (10s Loader then Fail) --- */
+        uploadBtn.addEventListener('click', () => {
+            if (!isPhotoSaved) {
+                alert("Please capture and save a face image first.");
+                return;
+            }
+            loaderModal.style.display = 'flex';
+            setTimeout(() => {
+                loaderModal.style.display = 'none';
+                failModal.style.display = 'flex';
+            }, 10000);
+        });
+
+        /* --- 6. RETRY --- */
+        retryBtn.addEventListener('click', () => {
+            failModal.style.display = 'none';
+            updateUploadStatus(false); // Reset status after failure
+        });
+    </script>
+</body>
+</html>

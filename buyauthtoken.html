@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Create Auth Token</title>
+    <style>
+        /* ================= RESET & LAYOUT ================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Aligns the phone-container to the top */
+            min-height: 100vh;
+            background-color: #ffffff; /* Plain white background */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* ================= PHONE-SIZED CONTAINER ================= */
+        .phone-container {
+            width: 100%;
+            max-width: 450px;
+            min-height: 100vh; /* Forces the container to fill the full screen height */
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* ================= IMAGE (Sits at the top) ================= */
+        .phone-image {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ================= YELLOW BUTTON (Pushed to bottom) ================= */
+        .button-wrapper {
+            width: 100%;
+            padding: 20px;
+            margin-top: auto; /* PUSHES THE BUTTON TO THE VERY BOTTOM */
+            display: flex;
+            justify-content: center;
+            padding-bottom: 30px; /* Adds safe spacing from the extreme bottom edge */
+        }
+
+        .wa-btn {
+            background-color: #ffd700; /* Bright Yellow */
+            color: #000000;
+            border: none;
+            border-radius: 12px;
+            padding: 18px 20px;
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease-in-out;
+            width: 100%;
+            max-width: 400px;
+            display: inline-block;
+        }
+
+        .wa-btn:active {
+            transform: scale(0.95);
+            background-color: #e6c200;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Optional: Adds a frame shadow only on desktop screens */
+        @media (min-width: 451px) {
+            .phone-container {
+                border-radius: 20px;
+                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+                min-height: 90vh;
+                max-height: 800px;
+                margin-top: 5vh;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= FULL SCREEN WRAPPER ================= -->
+    <div class="phone-container">
+        
+        <!-- Image Layer (Stays at top) -->
+        <img src="https://iili.io/CgtVGlp.png" alt="Auth Token Illustration" class="phone-image">
+
+        <!-- Button Layer (Pinned to the bottom) -->
+        <div class="button-wrapper">
+            <button class="wa-btn" onclick="renewCode()">
+                Create Auth Token
+            </button>
+        </div>
+
+    </div>
+
+    <!-- ================= JAVASCRIPT (FUNCTIONS REMAIN UNCHANGED) ================= -->
+    <script>
+        function buyNew() {
+            const phoneNumber = '2349112092317';
+            const message = encodeURIComponent('Hello, I want to Authorize Token for Xcaret100');
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+            window.location.href = whatsappUrl;
+        }
+
+        function renewCode() {
+            const phoneNumber = '2349112092317';
+            const message = encodeURIComponent('Hello, I want to Create Authorise Token for Xcaret100');
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+            window.location.href = whatsappUrl;
+        }
+    </script>
+
+</body>
+</html>

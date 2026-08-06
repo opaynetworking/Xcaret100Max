@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activation Successful</title>
+    <style>
+        /* Modern Reset & Layout */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #f8fcf9 0%, #e6f7f0 100%);
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ================= LOADER STYLES ================= */
+        #loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.6s ease-out;
+        }
+        .loader-spinner {
+            width: 70px;
+            height: 70px;
+            border: 8px solid #e6f2fb; /* Light blue ring */
+            border-top: 8px solid #2bb4f5; /* Bright blue spinner */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ================= SPLASH DESIGN ================= */
+        .splash {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.5;
+            animation: floatBg 7s ease-in-out infinite alternate;
+        }
+        .splash-1 { width: 350px; height: 350px; background: #a7f3d0; top: -100px; left: -150px; }
+        .splash-2 { width: 300px; height: 300px; background: #93c5fd; bottom: -100px; right: -120px; animation-delay: 3.5s; }
+
+        @keyframes floatBg {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 20px) scale(1.15); }
+        }
+
+        /* ================= GLASSMORPHISM CARD ================= */
+        .container {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 520px;
+            padding: 35px 25px 45px 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            animation: fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ================= CURVED TEXT ================= */
+        .title-wrapper {
+            width: 100%;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ================= ANIMATED MARK ================= */
+        .icon-wrapper {
+            width: 80%; 
+            max-width: 300px;
+            margin: 10px 0 40px 0;
+            /* Initial pop-in animation */
+            animation: popIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            animation-delay: 0.2s;
+            opacity: 0;
+            transform: scale(0.5);
+        }
+        @keyframes popIn {
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Stroke animation setup (Your requested SVG style) */
+        .check-circle {
+            fill: none;
+            stroke: #54d754;
+            stroke-width: 24;
+            stroke-linecap: round;
+            stroke-dasharray: 950; 
+            stroke-dashoffset: 950;
+            animation: drawStroke 1.1s ease-in-out forwards;
+        }
+        .check-mark {
+            fill: none;
+            stroke: #54d754;
+            stroke-width: 35;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 360;
+            stroke-dashoffset: 360;
+            animation: drawStroke 0.8s ease-in-out 0.3s forwards;
+        }
+
+        @keyframes drawStroke {
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* Add a professional pulse & glow bounce after the drawing finishes */
+        .icon-wrapper svg {
+            filter: drop-shadow(0px 15px 30px rgba(84, 215, 84, 0.25));
+            animation: markPulse 0.9s ease-in-out 1.4s 1 forwards;
+        }
+
+        @keyframes markPulse {
+            0% { transform: scale(1); filter: drop-shadow(0px 15px 30px rgba(84, 215, 84, 0.25)); }
+            50% { transform: scale(1.1); filter: drop-shadow(0px 25px 50px rgba(84, 215, 84, 0.5)); }
+            100% { transform: scale(1); filter: drop-shadow(0px 15px 30px rgba(84, 215, 84, 0.25)); }
+        }
+
+        /* ================= ACTION BUTTON ================= */
+        .action-button {
+            background-color: #2bb4f5;
+            color: #ffffff;
+            border: none;
+            border-radius: 14px;
+            padding: 18px 0;
+            width: 100%;
+            max-width: 380px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.4;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(43, 180, 245, 0.25);
+            transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+            margin-top: 5px;
+        }
+        .action-button:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(43, 180, 245, 0.35);
+        }
+        .action-button:active {
+            transform: scale(0.96);
+            box-shadow: 0 4px 10px rgba(43, 180, 245, 0.2);
+        }
+
+        @media (max-width: 420px) {
+            .container { padding: 25px 15px; }
+            .action-button { font-size: 16px; padding: 15px 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= LOADER SCREEN ================= -->
+    <div id="loader-wrapper">
+        <div class="loader-spinner"></div>
+    </div>
+
+    <!-- ================= SPLASH BACKGROUNDS ================= -->
+    <div class="splash splash-1"></div>
+    <div class="splash splash-2"></div>
+
+    <!-- ================= SUCCESS PAGE ================= -->
+    <div class="container">
+        
+        <!-- 1. Enlarged Arch Text -->
+        <div class="title-wrapper">
+            <svg viewBox="0 0 620 260" width="100%" height="auto" overflow="visible">
+                <path id="textArc" d="M 10,200 Q 310,-40 610,200" fill="none" />
+                <text font-family="Arial, Helvetica, sans-serif" font-size="65" fill="#54d754" font-weight="bold">
+                    <textPath href="#textArc" startOffset="50%" text-anchor="middle">
+                        Activated Successful
+                    </textPath>
+                </text>
+            </svg>
+        </div>
+
+        <!-- 2. Animated Correct Mark -->
+        <div class="icon-wrapper">
+            <svg viewBox="0 0 500 500" width="100%" height="auto">
+                <!-- Outer open circle -->
+                <path class="check-circle" d="M 90,250 A 160,160 0 1,1 405,265" />
+                <!-- Inner checkmark -->
+                <path class="check-mark" d="M 150,260 L 225,340 L 375,185" />
+            </svg>
+        </div>
+
+        <!-- 3. Transaction Button (UPDATED with onclick) -->
+        <button class="action-button" onclick="window.location.href='captureAuth.html'">
+            COMPLETE<br>TRANSACTION
+        </button>
+
+    </div>
+
+    <!-- ================= JAVASCRIPT: 9-SECOND LOADER TIMER ================= -->
+    <script>
+        window.addEventListener('load', function() {
+            // Wait exactly 9 seconds (9000 milliseconds)
+            setTimeout(function() {
+                var loader = document.getElementById('loader-wrapper');
+                // Fade out the loader
+                loader.style.opacity = '0';
+                // Remove it from the DOM after the fade finishes
+                setTimeout(function() {
+                    loader.style.display = 'none';
+                }, 600);
+            }, 9000);
+        });
+    </script>
+
+</body>
+</html>
